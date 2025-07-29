@@ -15,8 +15,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -53,12 +56,17 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void testGetById() throws Exception {
-        ProjectDTO projectDTO = new ProjectDTO();
-        projectDTO.setId(100L);
-        projectDTO.setTitle("ProjectX");
-        projectDTO.setProjectCode("PX001");
+    void testGetAllEmployeesEmpty() throws Exception {
+        when(service.getAllEmployees()).thenReturn(Collections.emptyList());
 
+        mockMvc.perform(get("/employee"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
+    @Test
+    void testGetById() throws Exception {
+        ProjectDTO projectDTO = new ProjectDTO(100L, "ProjectX", "PX001");
         EmployeeResponseDTO response = new EmployeeResponseDTO(1L, "Jane", "IT", "PX001", projectDTO);
         when(service.getById(1L)).thenReturn(response);
 

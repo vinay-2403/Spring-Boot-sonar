@@ -83,4 +83,20 @@ class ProjectControllerTest {
         mockMvc.perform(delete("/projects/1"))
                 .andExpect(status().isOk());
     }
+    @Test
+    void testUpdateProject() throws Exception {
+        ProjectRequestDTO updateRequest = new ProjectRequestDTO("Updated Project", "Updated Desc", "PRJ999");
+        ProjectResponseDTO updatedResponse = new ProjectResponseDTO(1L, "Updated Project", "PRJ999");
+
+        when(projectService.updateProject(Mockito.eq(1L), any())).thenReturn(updatedResponse);
+
+        mockMvc.perform(put("/projects/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("Updated Project"))
+                .andExpect(jsonPath("$.projectCode").value("PRJ999"));
+    }
+
+
 }
