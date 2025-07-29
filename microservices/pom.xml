@@ -23,6 +23,11 @@
     <spring-cloud.version>2022.0.4</spring-cloud.version>
       <sonar.organization>vinay-2403-1</sonar.organization>
       <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    <sonar.coverage.exclusions>
+      **/ApiGatewayApplication.java,
+      **/EurekaServerApplication.java,
+      **/ModelMapperConfig.java
+    </sonar.coverage.exclusions>
   </properties>
 
   <dependencyManagement>
