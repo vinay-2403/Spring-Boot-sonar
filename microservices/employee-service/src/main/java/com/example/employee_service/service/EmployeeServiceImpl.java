@@ -4,6 +4,7 @@ import com.example.employee_service.dto.EmployeeRequestDTO;
 import com.example.employee_service.dto.EmployeeResponseDTO;
 import com.example.employee_service.dto.ProjectDTO;
 import com.example.employee_service.entity.Employee;
+import com.example.employee_service.exception.EmployeeNotFoundException;
 import com.example.employee_service.feign.ProjectClient;
 import com.example.employee_service.repository.EmployeeRepository;
 import org.modelmapper.ModelMapper;
@@ -36,7 +37,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponseDTO getById(Long id) {
         Employee employee = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("employee not found"));
+                .orElseThrow(() -> new EmployeeNotFoundException("employee not found with id"+id));
 
         EmployeeResponseDTO response = mapper.map(employee, EmployeeResponseDTO.class);
 
@@ -60,7 +61,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeResponseDTO updateEmployee(Long id, EmployeeRequestDTO dto) {
-        Employee employee=repository.findById(id).orElseThrow(()->new RuntimeException("employee not found"));
+        Employee employee=repository.findById(id).orElseThrow(()->new EmployeeNotFoundException("employee not found with id"+id));
         mapper.map(dto,employee);
         Employee saved=repository.save(employee);
         return mapper.map(saved,EmployeeResponseDTO.class);
@@ -69,7 +70,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public EmployeeResponseDTO patchEmployee(Long id, EmployeeRequestDTO dto) {
         Employee employee = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Employee not found"));
+                .orElseThrow(() -> new EmployeeNotFoundException("employee not found with id"+id));
 
 
         if (dto.getName() != null){

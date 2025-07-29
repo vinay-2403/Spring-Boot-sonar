@@ -3,6 +3,8 @@ package com.example.project_service.service;
 import com.example.project_service.dto.ProjectRequestDTO;
 import com.example.project_service.dto.ProjectResponseDTO;
 import com.example.project_service.entity.Project;
+import com.example.project_service.exception.ProjectCodeNotFoundException;
+import com.example.project_service.exception.ProjectNotFoundException;
 import com.example.project_service.repository.ProjectRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,6 +77,54 @@ class ProjectServiceImplTest {
         assertEquals("C002", results.get(1).getProjectCode());
 
         verify(repository, times(1)).findAll();
+    }
+
+    @Test
+    void testUpdateProject() {
+        Long id = 1L;
+        Project existing = new Project(id, "Old", "Old Desc", "OLD123");
+        ProjectRequestDTO dto = new ProjectRequestDTO("New", "New Desc", "NEW123");
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        ProjectResponseDTO result = service.updateProject(id, dto);
+
+        assertEquals("New", result.getTitle());
+        assertEquals("NEW123", result.getProjectCode());
+        verify(repository).findById(id);
+        verify(repository).save(existing);
+    }
+
+    @Test
+    void testGetProjectByCode() {
+        Project project = new Project(4L, "CodeProj", "Desc", "CODE100");
+        when(repository.findByProjectCode("CODE100")).thenReturn(Optional.of(project));
+
+        ProjectResponseDTO result = service.getProjectByCode("CODE100");
+
+        assertEquals("CodeProj", result.getTitle());
+        assertEquals("CODE100", result.getProjectCode());
+    }
+
+    @Test
+    void testGetProjectById_NotFound() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(ProjectNotFoundException.class, () ->
+                service.getProjectById(99L));
+
+        assertTrue(exception.getMessage().contains("Project not found with id99"));
+    }
+
+    @Test
+    void testGetProjectByCode_NotFound() {
+        when(repository.findByProjectCode("INVALID")).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(ProjectCodeNotFoundException.class, () ->
+                service.getProjectByCode("INVALID"));
+
+        assertTrue(exception.getMessage().contains("Project not found with codeINVALID"));
     }
 
 }

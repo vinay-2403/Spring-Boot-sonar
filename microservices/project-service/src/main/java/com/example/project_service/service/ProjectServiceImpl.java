@@ -4,6 +4,8 @@ package com.example.project_service.service;
 import com.example.project_service.dto.ProjectRequestDTO;
 import com.example.project_service.dto.ProjectResponseDTO;
 import com.example.project_service.entity.Project;
+import com.example.project_service.exception.ProjectCodeNotFoundException;
+import com.example.project_service.exception.ProjectNotFoundException;
 import com.example.project_service.repository.ProjectRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectResponseDTO getProjectById(Long id) {
         Project project = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id"+id));
         return mapper.map(project, ProjectResponseDTO.class);
     }
 
@@ -47,7 +49,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectResponseDTO updateProject(Long id, ProjectRequestDTO dto) {
         Project project = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id"+id));
 
         mapper.map(dto, project);
         Project updated = repository.save(project);
@@ -57,7 +59,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectResponseDTO patchProject(Long id, ProjectRequestDTO dto) {
         Project project = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new ProjectNotFoundException("Project not found with id"+id));
 
         if (dto.getTitle() != null){
             project.setTitle(dto.getTitle());
@@ -81,7 +83,7 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public ProjectResponseDTO getProjectByCode(String code) {
         Project project = repository.findByProjectCode(code)
-                .orElseThrow(() -> new RuntimeException("Project with code " + code + " not found"));
+                .orElseThrow(() -> new ProjectCodeNotFoundException("Project not found with code"+code));
         return mapper.map(project, ProjectResponseDTO.class);
     }
 }
