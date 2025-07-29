@@ -4,6 +4,7 @@ import com.example.employee_service.dto.EmployeeRequestDTO;
 import com.example.employee_service.dto.EmployeeResponseDTO;
 import com.example.employee_service.dto.ProjectDTO;
 import com.example.employee_service.entity.Employee;
+import com.example.employee_service.exception.EmployeeNotFoundException;
 import com.example.employee_service.feign.ProjectClient;
 import com.example.employee_service.repository.EmployeeRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -101,4 +102,39 @@ class EmployeeServiceImplTest {
         Exception exception = assertThrows(RuntimeException.class, () -> service.deleteEmployee(99L));
         assertEquals("Employee not found with id: 99", exception.getMessage());
     }
+
+    @Test
+    void testGetByIdThrowsEmployeeNotFoundException() {
+        when(repository.findById(999L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(EmployeeNotFoundException.class, () -> service.getById(999L));
+
+        assertEquals("employee not found with id999", exception.getMessage());
+    }
+
+
+
+    @Test
+    void testPatchEmployee_EmployeeNotFound() {
+        EmployeeRequestDTO patchDto = new EmployeeRequestDTO(null, "Ops", null, null, null);
+
+        when(repository.findById(404L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(EmployeeNotFoundException.class, () -> service.patchEmployee(404L, patchDto));
+
+        assertEquals("employee not found with id404", exception.getMessage());
+    }
+
+    @Test
+    void testUpdateEmployee_EmployeeNotFound() {
+        EmployeeRequestDTO updateDto = new EmployeeRequestDTO("Mike", "Finance", "mike@mail.com", "PRJ05", "FL");
+
+        when(repository.findById(123L)).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(EmployeeNotFoundException.class, () -> service.updateEmployee(123L, updateDto));
+
+        assertEquals("employee not found with id123", exception.getMessage());
+    }
+
+
 }
