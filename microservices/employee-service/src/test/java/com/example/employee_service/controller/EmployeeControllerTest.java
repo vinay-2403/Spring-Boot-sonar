@@ -15,8 +15,11 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -53,18 +56,31 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void testGetById() throws Exception {
-        ProjectDTO projectDTO = new ProjectDTO();
-        projectDTO.setId(100L);
-        projectDTO.setTitle("ProjectX");
-        projectDTO.setProjectCode("PX001");
+    void testGetAllEmployeesEmpty() throws Exception {
+        when(service.getAllEmployees()).thenReturn(Collections.emptyList());
 
+        mockMvc.perform(get("/employee"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("[]"));
+    }
+
+    @Test
+    void testGetById() throws Exception {
+        ProjectDTO projectDTO = new ProjectDTO(100L, "ProjectX", "PX001");
         EmployeeResponseDTO response = new EmployeeResponseDTO(1L, "Jane", "IT", "PX001", projectDTO);
         when(service.getById(1L)).thenReturn(response);
 
         mockMvc.perform(get("/employee/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.project.title").value("ProjectX"));
+    }
+
+    @Test
+    void testGetByIdNotFound() throws Exception {
+        when(service.getById(99L)).thenThrow(new RuntimeException("Employee not found"));
+
+        mockMvc.perform(get("/employee/99"))
+                .andExpect(status().isInternalServerError()); // Spring default
     }
 
     @Test
@@ -82,6 +98,16 @@ class EmployeeControllerTest {
     }
 
     @Test
+    void testSaveEmployeeInvalidData() throws Exception {
+        EmployeeRequestDTO request = new EmployeeRequestDTO("", "", "invalid", "", "");
+
+        mockMvc.perform(post("/employee")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest()); // Assuming validation
+    }
+
+    @Test
     void testUpdateEmployee() throws Exception {
         EmployeeRequestDTO request = new EmployeeRequestDTO("Updated", "Dept", "update@mail.com", "CODE", "Addr");
         EmployeeResponseDTO response = new EmployeeResponseDTO(1L, "Updated", "Dept", "CODE", null);
@@ -96,10 +122,30 @@ class EmployeeControllerTest {
     }
 
     @Test
+    void testUpdateEmployeeNotFound() throws Exception {
+        EmployeeRequestDTO request = new EmployeeRequestDTO("Updated", "Dept", "update@mail.com", "CODE", "Addr");
+
+        when(service.updateEmployee(eq(99L), any())).thenThrow(new RuntimeException("Employee not found"));
+
+        mockMvc.perform(put("/employee/99")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isInternalServerError()); // Spring default
+    }
+
+    @Test
     void testDeleteEmployee() throws Exception {
         doNothing().when(service).deleteEmployee(1L);
 
         mockMvc.perform(delete("/employee/1"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testDeleteEmployeeNotFound() throws Exception {
+        doThrow(new RuntimeException("Employee not found")).when(service).deleteEmployee(99L);
+
+        mockMvc.perform(delete("/employee/99"))
+                .andExpect(status().isInternalServerError()); // Spring default
     }
 }
