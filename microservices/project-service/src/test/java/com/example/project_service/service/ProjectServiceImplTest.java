@@ -11,6 +11,7 @@ import org.mockito.Mock;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,4 +60,21 @@ class ProjectServiceImplTest {
         service.deleteProject(3L);
         verify(repository, times(1)).deleteById(3L);
     }
+
+    @Test
+    void testGetAllProjects() {
+        Project project1 = new Project(1L, "Proj1", "Desc1", "C001");
+        Project project2 = new Project(2L, "Proj2", "Desc2", "C002");
+
+        when(repository.findAll()).thenReturn(List.of(project1, project2));
+
+        var results = service.getAllProjects();
+
+        assertEquals(2, results.size());
+        assertEquals("Proj1", results.get(0).getTitle());
+        assertEquals("C002", results.get(1).getProjectCode());
+
+        verify(repository, times(1)).findAll();
+    }
+
 }

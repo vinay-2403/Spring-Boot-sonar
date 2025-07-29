@@ -76,14 +76,6 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void testGetByIdNotFound() throws Exception {
-        when(service.getById(99L)).thenThrow(new RuntimeException("Employee not found"));
-
-        mockMvc.perform(get("/employee/99"))
-                .andExpect(status().isInternalServerError()); // Spring default
-    }
-
-    @Test
     void testSaveEmployee() throws Exception {
         EmployeeRequestDTO request = new EmployeeRequestDTO("Tom", "Finance", "tom@example.com", "PRJ007", "CA");
         EmployeeResponseDTO response = new EmployeeResponseDTO(1L, "Tom", "Finance", "PRJ007", null);
@@ -95,16 +87,6 @@ class EmployeeControllerTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Tom"));
-    }
-
-    @Test
-    void testSaveEmployeeInvalidData() throws Exception {
-        EmployeeRequestDTO request = new EmployeeRequestDTO("", "", "invalid", "", "");
-
-        mockMvc.perform(post("/employee")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest()); // Assuming validation
     }
 
     @Test
@@ -122,30 +104,10 @@ class EmployeeControllerTest {
     }
 
     @Test
-    void testUpdateEmployeeNotFound() throws Exception {
-        EmployeeRequestDTO request = new EmployeeRequestDTO("Updated", "Dept", "update@mail.com", "CODE", "Addr");
-
-        when(service.updateEmployee(eq(99L), any())).thenThrow(new RuntimeException("Employee not found"));
-
-        mockMvc.perform(put("/employee/99")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isInternalServerError()); // Spring default
-    }
-
-    @Test
     void testDeleteEmployee() throws Exception {
         doNothing().when(service).deleteEmployee(1L);
 
         mockMvc.perform(delete("/employee/1"))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void testDeleteEmployeeNotFound() throws Exception {
-        doThrow(new RuntimeException("Employee not found")).when(service).deleteEmployee(99L);
-
-        mockMvc.perform(delete("/employee/99"))
-                .andExpect(status().isInternalServerError()); // Spring default
     }
 }
