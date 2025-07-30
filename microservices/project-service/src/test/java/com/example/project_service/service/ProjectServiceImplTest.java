@@ -127,4 +127,96 @@ class ProjectServiceImplTest {
         assertTrue(exception.getMessage().contains("Project not found with codeINVALID"));
     }
 
+    @Test
+    void testPatchProject() {
+        Long id = 10L;
+        Project existing = new Project(id, "Old Title", "Old Desc", "OLD100");
+        ProjectRequestDTO patchDto = new ProjectRequestDTO("New Title", null, "NEW100");
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        ProjectResponseDTO result = service.patchProject(id, patchDto);
+
+        assertEquals("New Title", result.getTitle());
+        assertEquals("NEW100", result.getProjectCode());
+        verify(repository).findById(id);
+        verify(repository).save(existing);
+    }
+
+    @Test
+    void testPatchProject_TitleOnly() {
+        Long id = 101L;
+        Project existing = new Project(id, "Old", "Old Desc", "OLD1");
+        ProjectRequestDTO patchDto = new ProjectRequestDTO("New", null, null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        ProjectResponseDTO result = service.patchProject(id, patchDto);
+
+        assertEquals("New", result.getTitle());
+        assertEquals("OLD1", result.getProjectCode());
+    }
+
+    @Test
+    void testPatchProject_DescriptionOnly() {
+        Long id = 102L;
+        Project existing = new Project(id, "Old", "Old Desc", "OLD2");
+        ProjectRequestDTO patchDto = new ProjectRequestDTO(null, "Updated Desc", null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        ProjectResponseDTO result = service.patchProject(id, patchDto);
+
+        assertEquals("Old", result.getTitle());
+        assertEquals("OLD2", result.getProjectCode());
+    }
+
+    @Test
+    void testPatchProject_CodeOnly() {
+        Long id = 103L;
+        Project existing = new Project(id, "Old", "Old Desc", "OLD3");
+        ProjectRequestDTO patchDto = new ProjectRequestDTO(null, null, "NEW3");
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        ProjectResponseDTO result = service.patchProject(id, patchDto);
+
+        assertEquals("Old", result.getTitle());
+        assertEquals("NEW3", result.getProjectCode());
+    }
+
+    @Test
+    void testPatchProject_AllFields() {
+        Long id = 104L;
+        Project existing = new Project(id, "Old", "Old Desc", "OLD4");
+        ProjectRequestDTO patchDto = new ProjectRequestDTO("New", "New Desc", "NEW4");
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        ProjectResponseDTO result = service.patchProject(id, patchDto);
+
+        assertEquals("New", result.getTitle());
+        assertEquals("NEW4", result.getProjectCode());
+    }
+
+    @Test
+    void testPatchProject_NoFields() {
+        Long id = 105L;
+        Project existing = new Project(id, "Old", "Old Desc", "OLD5");
+        ProjectRequestDTO patchDto = new ProjectRequestDTO(null, null, null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        ProjectResponseDTO result = service.patchProject(id, patchDto);
+
+        assertEquals("Old", result.getTitle());
+        assertEquals("OLD5", result.getProjectCode());
+    }
+
 }
