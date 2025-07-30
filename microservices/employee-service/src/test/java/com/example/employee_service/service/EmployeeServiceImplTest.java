@@ -136,5 +136,57 @@ class EmployeeServiceImplTest {
         assertEquals("employee not found with id123", exception.getMessage());
     }
 
+    @Test
+    void testPatchEmployee_AllFields() {
+        Long id = 2L;
+        Employee existing = new Employee(id, "OldName", "OldDept", "old@mail.com", "OLD001", "OldAddr");
+
+        EmployeeRequestDTO patchDto = new EmployeeRequestDTO(
+                "NewName", "NewDept", "new@mail.com", "NEW001", "NewAddr"
+        );
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        EmployeeResponseDTO response = service.patchEmployee(id, patchDto);
+
+        assertEquals("NewName", response.getName());
+        assertEquals("NewDept", response.getDepartment());
+        assertEquals("NEW001", response.getEmployeeAssignedProjectCode());
+    }
+
+    @Test
+    void testPatchEmployee_PartialUpdate() {
+        Long id = 3L;
+        Employee existing = new Employee(id, "Test", "InitialDept", "mail@test.com", "P001", "OldLoc");
+
+        EmployeeRequestDTO patchDto = new EmployeeRequestDTO(
+                null, "UpdatedDept", null, null, "UpdatedLoc"
+        );
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        EmployeeResponseDTO response = service.patchEmployee(id, patchDto);
+
+        assertEquals("UpdatedDept", response.getDepartment());
+        assertEquals("Test", response.getName());
+    }
+
+    @Test
+    void testPatchEmployee_NoFieldsToUpdate() {
+        Long id = 4L;
+        Employee existing = new Employee(id, "A", "B", "C", "D", "E");
+
+        EmployeeRequestDTO patchDto = new EmployeeRequestDTO(null, null, null, null, null);
+
+        when(repository.findById(id)).thenReturn(Optional.of(existing));
+        when(repository.save(any())).thenReturn(existing);
+
+        EmployeeResponseDTO response = service.patchEmployee(id, patchDto);
+
+        assertEquals("A", response.getName());
+        assertEquals("B", response.getDepartment());
+    }
 
 }
