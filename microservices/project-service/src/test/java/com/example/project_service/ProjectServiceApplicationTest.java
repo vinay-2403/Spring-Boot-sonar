@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 class ProjectServiceApplicationTest {
 
     @Test
-    void mainMethodTest() {
+    void mainMethodTest() {  //DB is connect
         ProjectServiceApplication.main(new String[] {});
     }
 }
