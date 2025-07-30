@@ -24,8 +24,8 @@
       <sonar.organization>vinay-2403-1</sonar.organization>
       <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     <sonar.coverage.exclusions>
-      **/ApiGatewayApplication.java,
-      **/EurekaServerApplication.java,
+      **/api-gateway/**,
+      **/eureka-server/**,
       **/ModelMapperConfig.java
     </sonar.coverage.exclusions>
   </properties>
