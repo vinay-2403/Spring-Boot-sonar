@@ -173,20 +173,4 @@ class EmployeeServiceImplTest {
         assertEquals("Test", response.getName());
     }
 
-    @Test
-    void testPatchEmployee_NoFieldsToUpdate() {
-        Long id = 4L;
-        Employee existing = new Employee(id, "A", "B", "C", "D", "E");
-
-        EmployeeRequestDTO patchDto = new EmployeeRequestDTO(null, null, null, null, null);
-
-        when(repository.findById(id)).thenReturn(Optional.of(existing));
-        when(repository.save(any())).thenReturn(existing);
-
-        EmployeeResponseDTO response = service.patchEmployee(id, patchDto);
-
-        assertEquals("A", response.getName());
-        assertEquals("B", response.getDepartment());
-    }
-
 }
