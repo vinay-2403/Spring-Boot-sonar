@@ -98,5 +98,4 @@ class ProjectControllerTest {
                 .andExpect(jsonPath("$.projectCode").value("PRJ999"));
     }
 
-
 }
